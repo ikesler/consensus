@@ -1,5 +1,7 @@
 ﻿using Consensus.DataSourceHandlers;
 using Consensus.DataSourceHandlers.Vk;
+using Consensus.Elastic;
+using Consensus.Hangfire;
 using DryIoc;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -37,7 +39,11 @@ namespace Consensus
 
         public void ConfigureContainer(IContainer container)
         {
+            container.Register<ConsensusDocumentRepository>();
+            container.Register<JobFilter>();
             container.RegisterInstance(Configuration.Get<SysConfig>());
+            GlobalJobFilters.Filters.Add(container.Resolve<JobFilter>());
+            GlobalConfiguration.Configuration.UseActivator(new ContainerJobActivator(container));
             container.Register(typeof(IDataSourceHandler), typeof(VkDataSourceHandler));
         }
 

@@ -39,7 +39,7 @@ namespace Consensus.Controllers
                 .Get(handler.TConfig);
             var (props, state) = handler.HandleCallback(config, new Uri(UriHelper.GetEncodedUrl(HttpContext.Request)));
             RecurringJob.AddOrUpdate($"{sourceCode} {JsonConvert.SerializeObject(props)}",
-                () => Console.WriteLine(JsonConvert.SerializeObject(state)), Cron.Minutely());
+                () => handler.RunJob(config, props, state), Cron.Minutely());
 
             return Redirect($"{_sysConfig.FrontEndUrl}/hangfire");
         }

@@ -3,7 +3,7 @@
     public class ConsensusDocument
     {
         public string Source;
-        public string SubSource;
+        public string ExternalSource;
         public DateTime CreatedAt;
         public DateTime? ExternalCreatedAt;
         public string ExternalId;
@@ -12,5 +12,6 @@
         public string CreatedByName;
         public string[] AttachmentUrls;
         public string Content;
+        public ConsensusDocument[] Children;
     }
 }

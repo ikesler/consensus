@@ -16,8 +16,10 @@
   <ItemGroup>
     <PackageReference Include="DryIoc" Version="4.7.0" />
     <PackageReference Include="DryIoc.Microsoft.DependencyInjection" Version="5.1.0" />
+    <PackageReference Include="Elasticsearch.Net" Version="7.15.2" />
     <PackageReference Include="Hangfire" Version="1.7.26" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.8.6" />
+    <PackageReference Include="NEST" Version="7.15.2" />
     <PackageReference Include="VkNet" Version="1.67.0" />
   </ItemGroup>
 

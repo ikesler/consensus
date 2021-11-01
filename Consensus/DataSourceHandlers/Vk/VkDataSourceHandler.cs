@@ -43,8 +43,10 @@ namespace Consensus.DataSourceHandlers.Vk
             return new Uri(redirectUrl);
         }
 
-        public override ConsensusDocument[] RunJob(VkConfig config, VkProps props, VkState state)
+        public override (ConsensusDocument[], VkState) RunJob(VkConfig config, VkProps props, VkState state)
         {
+            state.Var ??= "";
+            state.Var += "1";
             var api = new VkApi();
             api.Authorize(new ApiAuthParams
             {
@@ -52,13 +54,15 @@ namespace Consensus.DataSourceHandlers.Vk
 
             });
             var messages = api.Wall.Get(new WallGetParams { Count = 50, Domain = props.CommunityName, Extended = true });
-            return messages.WallPosts.Select(p => new ConsensusDocument
+            var documents = messages.WallPosts.Select(p => new ConsensusDocument
             {
                 Content = p.Text,
                 CreatedById = p.FromId?.ToString(),
                 ExternalCreatedAt = p.Date,
-                SubSource = props.CommunityName,
+                ExternalSource = props.CommunityName,
             }).ToArray();
+
+            return (documents, state);
         }
     }
 }

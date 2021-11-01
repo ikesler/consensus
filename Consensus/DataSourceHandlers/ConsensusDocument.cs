@@ -2,16 +2,17 @@
 {
     public class ConsensusDocument
     {
-        public string Source;
-        public string ExternalSource;
-        public DateTime CreatedAt;
-        public DateTime? ExternalCreatedAt;
-        public string ExternalId;
-        public string Url;
-        public string CreatedById;
-        public string CreatedByName;
-        public string[] AttachmentUrls;
-        public string Content;
-        public ConsensusDocument[] Children;
+        public Guid Id { get; set; }
+        public string Source { get; set; }
+        public string ExternalSource { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? ExternalCreatedAt { get; set; }
+        public string ExternalId { get; set; }
+        public string Url { get; set; }
+        public string CreatedById { get; set; }
+        public string CreatedByName { get; set; }
+        public string[] AttachmentUrls { get; set; }
+        public string Content { get; set; }
+        public Guid? ParentId { get; set; }
     }
 }

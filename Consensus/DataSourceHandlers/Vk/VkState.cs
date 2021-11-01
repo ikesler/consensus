@@ -4,6 +4,8 @@
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
-        public string Var { get; set; }
+        public ulong Offset { get; set; }
+        public bool IsHistoryDone { get; set; }
+        public DateTime LastPostDate { get; set; }
     }
 }

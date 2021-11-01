@@ -20,7 +20,7 @@ namespace Consensus.Elastic
             var groupsByIndex = documents.GroupBy(d => d.Source);
             foreach (var group in groupsByIndex)
             {
-                client.Bulk(b => b.Index(group.Key).IndexMany(group));
+                var r = client.Bulk(b => b.Index($"consensus_{group.Key}_{DateTime.Now.Date:yyyy.MM.dd}".ToLower()).IndexMany(group));
             }
         }
     }

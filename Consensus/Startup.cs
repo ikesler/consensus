@@ -43,6 +43,7 @@ namespace Consensus
             container.Register<JobFilter>();
             container.RegisterInstance(Configuration.Get<SysConfig>());
             GlobalJobFilters.Filters.Add(container.Resolve<JobFilter>());
+            GlobalJobFilters.Filters.Add(new DisableConcurrentExecutionAttribute(300));
             GlobalConfiguration.Configuration.UseActivator(new ContainerJobActivator(container));
             container.Register(typeof(IDataSourceHandler), typeof(VkDataSourceHandler));
         }

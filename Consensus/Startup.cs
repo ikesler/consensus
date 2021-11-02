@@ -26,7 +26,7 @@ namespace Consensus
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard(options: new DashboardOptions { Authorization = new[] { new DashboardNoAuthorizationFilter() } });
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {

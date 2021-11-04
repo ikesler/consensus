@@ -11,25 +11,24 @@ services:
     networks:
       homelogrusdev_logrus:
         ipv4_address: 10.5.0.23
+    ports:
+      - "5432:5432"
 
   back:
     restart: always
-    image: ghcr.io/logrus-dev/consensus-back:1.0.2
+    image: ghcr.io/logrus-dev/consensus-back:1.0.15
     container_name: back
     depends_on:
       - postgres
-    environment:
-      ConnectionStrings__HangfireStorage: "Server=10.5.0.23;Database=consensus;User Id=consensus;Password=1;"
-      BackEndUrl: https://api.consensus.logrus.dev
-      FrontEndUrl: https://consensus.logrus.dev
-      ElasticEndpoint: http://192.168.1.185:9200
     networks:
       homelogrusdev_logrus:
         ipv4_address: 10.5.0.21
+    env_file:
+    - .env
 
   front:
     restart: always
-    image: ghcr.io/logrus-dev/consensus-front:1.0.2
+    image: ghcr.io/logrus-dev/consensus-front:1.0.3
     container_name: front
     networks:
       homelogrusdev_logrus:

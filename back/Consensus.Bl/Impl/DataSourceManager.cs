@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Consensus.Common.Configuration;
 using Nest;
 using Serilog;
+using Consensus.Common.Exceptions;
 
 namespace Consensus.Bl.Impl
 {
@@ -35,13 +36,15 @@ namespace Consensus.Bl.Impl
                 PublicId = Guid.NewGuid(),
                 DataSourceCode = dataSourceCode,
                 PropsJson = propsJson,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
             };
             _dbContext.Pipes.Add(pipe);
             await _dbContext.SaveChangesAsync();
 
             var callbackUrl = new Uri($"{_sysConfig.BackEndUrl}/callback/{pipe.PublicId}");
 
-            return handler.InitCallback(config, props, callbackUrl);
+            return await handler.InitCallback(config, props, callbackUrl);
         }
 
         public async Task HandleCallback(Guid pipeId, Uri callbackUrl)
@@ -49,8 +52,7 @@ namespace Consensus.Bl.Impl
             var pipe = await _dbContext.Pipes.FirstOrDefaultAsync(p => p.PublicId == pipeId);
             if (pipe == null)
             {
-                Log.Error("Pipe not found: {pipeId}", pipeId);
-                return;
+                throw new ConsensusException($"Pipe not found: {pipeId}");
             }
             var handler = GetHandler(pipe.DataSourceCode);
             var config = GetHandlerConfig(handler);
@@ -58,9 +60,14 @@ namespace Consensus.Bl.Impl
 
             Log.Information("Opening pipe: {config}, {props}", JsonConvert.SerializeObject(config), pipe.PropsJson);
 
-            var state = handler.HandleCallback(config, props, callbackUrl);
+            var state = await handler.HandleCallback(config, props, callbackUrl);
             pipe.StateJson = JsonConvert.SerializeObject(state);
             pipe.Status = PipeStatus.Open;
+            pipe.UpdatedAt = DateTime.UtcNow;
+            if (pipe.FirstOpenedAt == null)
+            {
+                pipe.FirstOpenedAt = DateTime.UtcNow;
+            }
 
             Log.Information("Opened pipe: {state}", pipe.StateJson);
 
@@ -69,7 +76,6 @@ namespace Consensus.Bl.Impl
 
         public async Task PumpDocuments(string dataSourceCode)
         {
-            throw new Exception("local!");
             Log.Information("Pumping data from source: {dataSourceCode}", dataSourceCode);
             var pipe = await _dbContext.Pipes
                 .Where(p => p.Status == PipeStatus.Open)
@@ -91,7 +97,7 @@ namespace Consensus.Bl.Impl
             await _dbContext.SaveChangesAsync();
             try
             {
-                var (documents, newState) = handler.PumpDocuments(config, props, state);
+                var (documents, newState) = await handler.PumpDocuments(config, props, state);
                 pipe.StateJson = JsonConvert.SerializeObject(newState);
                 await SaveToElastic(documents);
                 Log.Information("Successfully pumped {cnt} documents", documents.Length);
@@ -114,7 +120,7 @@ namespace Consensus.Bl.Impl
             var result = _handlers.FirstOrDefault(h => h.Code == dataSourceCode);
             if (result == null)
             {
-                throw new Exception($"Data source {dataSourceCode} is not supported.");
+                throw new ConsensusException($"Data source {dataSourceCode} is not supported.");
             }
 
             return result;

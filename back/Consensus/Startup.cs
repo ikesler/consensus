@@ -1,9 +1,9 @@
 ﻿using Autofac;
 using Consensus.Bl;
 using Consensus.Common;
+using Consensus.Common.Configuration;
 using Consensus.Data;
 using Consensus.Quartz;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -21,12 +21,24 @@ namespace Consensus
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var sysConfig = Configuration.Get<SysConfig>();
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.All;
                 options.KnownNetworks.Clear();
+
                 options.KnownProxies.Clear();
+                if (sysConfig.KnownProxies != null)
+                {
+                    foreach (var knownProxy in sysConfig.KnownProxies)
+                    {
+                        options.KnownProxies.Add(System.Net.IPAddress.Parse(knownProxy));
+                    }
+                }
+
                 options.AllowedHosts.Clear();
+                var backEndUrl = new Uri(sysConfig.BackEndUrl);
+                options.AllowedHosts.Add(backEndUrl.Host);
             });
 
             services.AddControllers();
@@ -39,14 +51,7 @@ namespace Consensus
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseForwardedHeaders();
-            app.UseSerilogRequestLogging(opts =>
-            {
-                opts.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-                {
-                    var request = httpContext.Request;
-                    diagnosticContext.Set("RequestHeaders",request.Headers.Select(kvp => $"{kvp.Key}: {kvp.Value}"), true);
-                };
-            });
+            app.UseSerilogRequestLogging();
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>

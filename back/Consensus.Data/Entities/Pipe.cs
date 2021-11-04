@@ -10,7 +10,7 @@
         public string? StateJson { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public DateTime OpenedAt { get; set; }
-        public DateTime LastPumpedAt { get; set; }
+        public DateTime? FirstOpenedAt { get; set; }
+        public DateTime? LastPumpedAt { get; set; }
     }
 }

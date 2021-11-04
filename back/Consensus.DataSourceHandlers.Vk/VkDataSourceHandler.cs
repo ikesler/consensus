@@ -1,7 +1,5 @@
 ﻿using Consensus.DataSourceHandlers.Api;
 using Microsoft.AspNetCore.WebUtilities;
-using Serilog;
-using System.Diagnostics;
 using System.Net.Http.Json;
 using VkNet;
 using VkNet.Model;
@@ -11,24 +9,23 @@ namespace Consensus.DataSourceHandlers.Vk
 {
     public class VkDataSourceHandler : DataSourceHandlerBase<VkConfig, VkProps, VkState>
     {
+        private static HttpClient _httpClient = new HttpClient();
         public override string Code => "Vk";
 
-        public override Uri InitCallback(VkConfig config, VkProps props, Uri callbackUrl)
+        public override async Task<Uri> InitCallback(VkConfig config, VkProps props, Uri callbackUrl)
         {
             var redirectUrl = $"https://oauth.vk.com/authorize?client_id={config.ClientId}&display=page&redirect_uri={callbackUrl}&scope={config.Scope}&response_type=code";
             return new Uri(redirectUrl);
         }
 
-        public override VkState HandleCallback(VkConfig config, VkProps props, Uri callbackUrl)
+        public override async Task<VkState> HandleCallback(VkConfig config, VkProps props, Uri callbackUrl)
         {
             var redirectUrlParam = callbackUrl.GetLeftPart(UriPartial.Path);
             var query = QueryHelpers.ParseQuery(callbackUrl.Query);
             var code = query["code"][0];
 
-            var client = new HttpClient();
             var url = $"https://oauth.vk.com/access_token?client_id={config.ClientId}&client_secret={config.ClientSecret}&redirect_uri={redirectUrlParam}&code={code}";
-            Log.Information("Vk code exchange {url}", url);
-            var accessTokenResponse = client.GetFromJsonAsync<AccessTokenResponse>(url).Result;
+            var accessTokenResponse = await _httpClient.GetFromJsonAsync<AccessTokenResponse>(url);
 
             return new VkState
             {
@@ -37,14 +34,14 @@ namespace Consensus.DataSourceHandlers.Vk
             };
         }
 
-        public override (ConsensusDocument[], VkState) PumpDocuments(VkConfig config, VkProps props, VkState state)
+        public override async Task<(ConsensusDocument[], VkState)> PumpDocuments(VkConfig config, VkProps props, VkState state)
         {
             var api = new VkApi();
             api.Authorize(new ApiAuthParams
             {
                 AccessToken = config.ServiceKey,
             });
-            var messages = api.Wall.Get(new WallGetParams { Count = 100, Domain = props.CommunityName, Offset = state.Offset });
+            var messages = await api.Wall.GetAsync(new WallGetParams { Count = 100, Domain = props.CommunityName, Offset = state.Offset });
             if (messages.WallPosts.Count == 0)
             {
                 state.Offset = 0;
@@ -93,9 +90,7 @@ namespace Consensus.DataSourceHandlers.Vk
                 var comments = new List<Comment>();
                 for (var commentOffset = 0; commentOffset <= 1000; commentOffset += 100)
                 {
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
-                    var commentsPage = api.Wall.GetComments(new WallGetCommentsParams
+                    var commentsPage = await api.Wall.GetCommentsAsync(new WallGetCommentsParams
                     {
                         OwnerId = post.OwnerId,
                         PostId = post.Id.Value,
@@ -108,11 +103,6 @@ namespace Consensus.DataSourceHandlers.Vk
                         break;
                     }
                     comments.AddRange(commentsPage.Items);
-                    stopwatch.Stop();
-                    if (stopwatch.ElapsedMilliseconds < 200)
-                    {
-                        Thread.Sleep(200 - (int)stopwatch.ElapsedMilliseconds);
-                    }
                 }
 
                 foreach (var comment in comments)

@@ -77,9 +77,16 @@ namespace Consensus.Bl.Impl
         public async Task PumpDocuments(string dataSourceCode)
         {
             Log.Information("Pumping data from source: {dataSourceCode}", dataSourceCode);
+
+            var handler = GetHandler(dataSourceCode);
+            var config = GetHandlerConfig(handler);
+            var dataSourceConfig = GetDataSourceConfig(dataSourceCode);
+
+            var timeoutDate = DateTime.UtcNow.Add(-dataSourceConfig.Timeout);
             var pipe = await _dbContext.Pipes
-                .Where(p => p.Status == PipeStatus.Open)
-                .OrderBy(p => p.LastPumpedAt)
+                // Either open and not pumping or pumping for too long
+                .Where(p => p.Status == PipeStatus.Open || (p.Status == PipeStatus.Pumping && p.LastPumpedAt < timeoutDate))
+                .OrderBy(p => p.LastPumpedAt ?? DateTime.MinValue)
                 .FirstOrDefaultAsync();
             if (pipe == null)
             {
@@ -87,11 +94,16 @@ namespace Consensus.Bl.Impl
                 return;
             }
 
-            var handler = GetHandler(dataSourceCode);
-            var config = GetHandlerConfig(handler);
+            if (pipe.Status == PipeStatus.Pumping)
+            {
+                Log.Error("Pipe {pipe} was stuck since {LastPumpedAt}. Clearing.", pipe.Id, pipe.LastPumpedAt);
+                pipe.LastPumpedAt = DateTime.UtcNow;
+            }
+
+            Log.Information("Pumping data from source: {props}", pipe.PropsJson);
+
             var props = JsonConvert.DeserializeObject(pipe.PropsJson, handler.TProps);
             var state = JsonConvert.DeserializeObject(pipe.StateJson, handler.TState);
-            Log.Information("Pumping data from source: {state}", state);
 
             pipe.Status = PipeStatus.Pumping;
             await _dbContext.SaveChangesAsync();
@@ -110,9 +122,14 @@ namespace Consensus.Bl.Impl
             }
         }
 
+        private DataSourceConfig GetDataSourceConfig(string dataSourceCode)
+        {
+            return _sysConfig.ConsensusDataSources[dataSourceCode];
+        }
+
         private object GetHandlerConfig(IDataSourceHandler handler)
         {
-            return _sysConfig.ConsensusDataSources[handler.Code].Config.Get(handler.TConfig);
+            return GetDataSourceConfig(handler.Code).Config.Get(handler.TConfig);
         }
 
         private IDataSourceHandler GetHandler(string dataSourceCode)

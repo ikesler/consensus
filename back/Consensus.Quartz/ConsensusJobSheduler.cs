@@ -16,10 +16,15 @@ namespace Consensus.Quartz
             _scheduler = scheduler;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken hostedServiceToken)
         {
             foreach (var dataSource in _sysConfig.ConsensusDataSources)
             {
+                var timeoutTokenSource = new CancellationTokenSource(dataSource.Value.Timeout);
+                var cancellationToken = CancellationTokenSource
+                    .CreateLinkedTokenSource(timeoutTokenSource.Token, hostedServiceToken)
+                    .Token;
+
                 var job = JobBuilder.Create<PumpDataSourceJob>()
                     .WithIdentity(dataSource.Key, "PumpDataSource")
                     .Build();
@@ -32,7 +37,7 @@ namespace Consensus.Quartz
                 await _scheduler.ScheduleJob(job, new[] { trigger }, true, cancellationToken);
             }
 
-            await _scheduler.Start(cancellationToken);
+            await _scheduler.Start(hostedServiceToken);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)

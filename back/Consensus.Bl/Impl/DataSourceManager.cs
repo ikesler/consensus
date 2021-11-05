@@ -152,7 +152,7 @@ namespace Consensus.Bl.Impl
             foreach (var group in groupsByIndex)
             {
                 var r = await client.BulkAsync(b => b
-                    .Index($"consensus_{group.Key}_{DateTime.Now.Date:yyyy.MM.dd}".ToLower())
+                    .Index($"consensus_{group.Key}_{DateTime.Now.Date:yyyy.MM.dd_HH}".ToLower())
                     .IndexMany(group));
             }
         }

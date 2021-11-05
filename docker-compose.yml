@@ -16,7 +16,8 @@ services:
 
   back:
     restart: always
-    image: ghcr.io/logrus-dev/consensus-back:1.0.20
+    build: ./back
+    image: ghcr.io/logrus-dev/consensus-back:${VERSION}
     container_name: back
     depends_on:
       - postgres
@@ -28,7 +29,8 @@ services:
 
   front:
     restart: always
-    image: ghcr.io/logrus-dev/consensus-front:1.0.3
+    build: ./front
+    image: ghcr.io/logrus-dev/consensus-front:${VERSION}
     container_name: front
     networks:
       homelogrusdev_logrus:

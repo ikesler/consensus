@@ -2,6 +2,7 @@
 using Consensus.Quartz.Jobs;
 using Microsoft.Extensions.Hosting;
 using Quartz;
+using Serilog;
 
 namespace Consensus.Quartz
 {
@@ -18,6 +19,7 @@ namespace Consensus.Quartz
 
         public async Task StartAsync(CancellationToken hostedServiceToken)
         {
+            Log.Information("Scheduling Quartz jobs");
             foreach (var dataSource in _sysConfig.ConsensusDataSources)
             {
                 var timeoutTokenSource = new CancellationTokenSource(dataSource.Value.Timeout);
@@ -38,11 +40,17 @@ namespace Consensus.Quartz
             }
 
             await _scheduler.Start(hostedServiceToken);
+
+            Log.Information("Scheduled Quartz jobs");
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            Log.Information("Shutting down Quartz jobs");
+
             await _scheduler.Shutdown(cancellationToken);
+
+            Log.Information("Shut down Quartz jobs");
         }
     }
 }

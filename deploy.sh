@@ -17,6 +17,7 @@ echo 'Building'
 
 docker-compose build
 docker-compose push
+git tag -a "v$NEW_VERSION" -m "Deployment"
 
 echo "Deploying to $DEPLOY_TO"
 

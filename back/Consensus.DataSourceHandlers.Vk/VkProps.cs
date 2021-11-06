@@ -3,5 +3,6 @@
     public class VkProps
     {
         public string CommunityName { get; set; }
+        public int PumpHistoryMonths { get; set; }
     }
 }

@@ -3,7 +3,6 @@ using Quartz;
 
 namespace Consensus.Quartz.Jobs
 {
-    [DisallowConcurrentExecution]
     public class PumpDataSourceJob : IJob
     {
         private readonly IDataSourceManager _dataSourceManager;

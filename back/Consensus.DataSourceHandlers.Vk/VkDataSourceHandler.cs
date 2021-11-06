@@ -39,6 +39,9 @@ namespace Consensus.DataSourceHandlers.Vk
             var api = new VkApi();
             api.Authorize(new ApiAuthParams
             {
+                // TODO: there were some issues with using access_token - some weird API limits
+                // with service token everything works fine and this is actually enough - public groups provide enough data
+                // but in order to pump data from private groups - need to fix access_token issues somehow
                 AccessToken = config.ServiceKey,
             });
             var messages = await api.Wall.GetAsync(new WallGetParams { Count = 100, Domain = props.CommunityName, Offset = state.Offset });
@@ -83,6 +86,7 @@ namespace Consensus.DataSourceHandlers.Vk
 
             var documents = new List<ConsensusDocument>();
 
+            // No task/parallel stuff on purpose - in order not to meet API request limits
             foreach (var (post, postDocument) in postDocuments)
             {
                 documents.Add(postDocument);
@@ -121,6 +125,16 @@ namespace Consensus.DataSourceHandlers.Vk
                         Url = $"https://vk.com/wall{post.OwnerId}_{post.Id}?reply={comment.Id}",
                     };
                     documents.Add(commentDocument);
+                }
+            }
+
+            // Need to pump only last X months of history
+            if (props.PumpHistoryMonths > 0)
+            {
+                var minDate = DateTime.UtcNow.AddMonths(-props.PumpHistoryMonths);
+                if (documents.Any(d => d.ExternalCreatedAt <= minDate))
+                {
+                    state.IsHistoryDone = true;
                 }
             }
 

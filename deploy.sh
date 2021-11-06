@@ -25,4 +25,4 @@ export DOCKER_HOST="$DEPLOY_TO"
 docker-compose pull
 docker-compose up --no-build -d
 
-echo 'Done.'
+echo "Deplyed $NEW_VERSION."

@@ -9,9 +9,9 @@
         public DateTime? ExternalCreatedAt { get; set; }
         public string ExternalId { get; set; }
         public string Url { get; set; }
-        public string CreatedById { get; set; }
-        public string CreatedByName { get; set; }
-        public string[] AttachmentUrls { get; set; }
+        public string? CreatedById { get; set; }
+        public string? CreatedByName { get; set; }
+        public string[] AttachmentUrls { get; set; } = new string[0];
         public string Content { get; set; }
         public Guid? ParentId { get; set; }
     }

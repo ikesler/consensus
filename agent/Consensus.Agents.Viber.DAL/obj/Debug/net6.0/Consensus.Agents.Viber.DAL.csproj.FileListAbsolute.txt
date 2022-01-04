@@ -1,0 +1,14 @@
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\bin\Debug\net6.0\Consensus.Agents.Viber.DAL.deps.json
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\bin\Debug\net6.0\Consensus.Agents.Viber.DAL.dll
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\bin\Debug\net6.0\ref\Consensus.Agents.Viber.DAL.dll
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\bin\Debug\net6.0\Consensus.Agents.Viber.DAL.pdb
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\Consensus.Agents.Viber.DAL.csproj.AssemblyReference.cache
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\Consensus.Agents.Viber.DAL.GeneratedMSBuildEditorConfig.editorconfig
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\Consensus.Agents.Viber.DAL.AssemblyInfoInputs.cache
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\Consensus.Agents.Viber.DAL.AssemblyInfo.cs
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\Consensus.Agents.Viber.DAL.csproj.CoreCompileInputs.cache
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\Consensus.Agents.Viber.DAL.dll
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\ref\Consensus.Agents.Viber.DAL.dll
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\Consensus.Agents.Viber.DAL.pdb
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\bin\Debug\net6.0\Consensus.Agents.Viber.DAL.runtimeconfig.json
+D:\dev\home\consensus\agent\Consensus.Agents.Viber.DAL\obj\Debug\net6.0\Consensus.Agents.Viber.DAL.genruntimeconfig.cache

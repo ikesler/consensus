@@ -7,23 +7,27 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus", "Consensus\Cons
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Consensus.DataSourceHandlers", "Consensus.DataSourceHandlers", "{309B3E65-DFD2-426D-8989-4C8380C7D7DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.DataSourceHandlers.Api", "Consensus.DataSourceHandlers.Api\Consensus.DataSourceHandlers.Api.csproj", "{86788026-0974-4536-A229-982207528B3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.DataSourceHandlers.Api", "Consensus.DataSourceHandlers.Api\Consensus.DataSourceHandlers.Api.csproj", "{86788026-0974-4536-A229-982207528B3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.DataSourceHandlers.Vk", "Consensus.DataSourceHandlers.Vk\Consensus.DataSourceHandlers.Vk.csproj", "{89E25C2B-B20E-48DD-9385-5FB5CB2ABF79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.DataSourceHandlers.Vk", "Consensus.DataSourceHandlers.Vk\Consensus.DataSourceHandlers.Vk.csproj", "{89E25C2B-B20E-48DD-9385-5FB5CB2ABF79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.Bl", "Consensus.Bl\Consensus.Bl.csproj", "{B6183BB3-77DB-40CC-A540-4C3EFAE11042}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.Bl", "Consensus.Bl\Consensus.Bl.csproj", "{B6183BB3-77DB-40CC-A540-4C3EFAE11042}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.Data", "Consensus.Data\Consensus.Data.csproj", "{8965B9E0-6E7C-46D9-9CAC-82FB94AC60C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.Data", "Consensus.Data\Consensus.Data.csproj", "{8965B9E0-6E7C-46D9-9CAC-82FB94AC60C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.Quartz", "Consensus.Quartz\Consensus.Quartz.csproj", "{7D6A5A4A-E8C3-4266-ADA4-69EC8A901BFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.Quartz", "Consensus.Quartz\Consensus.Quartz.csproj", "{7D6A5A4A-E8C3-4266-ADA4-69EC8A901BFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.Common", "Consensus.Common\Consensus.Common.csproj", "{872C3FDF-0352-47B1-A1A4-2C97D36C0B65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.Common", "Consensus.Common\Consensus.Common.csproj", "{872C3FDF-0352-47B1-A1A4-2C97D36C0B65}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3913D927-52C9-41FD-A1FB-689A072606DE}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		Dockerfile = Dockerfile
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.Agent", "Consensus.Agent\Consensus.Agent.csproj", "{DEA86433-5C50-43E5-91D5-8AA86E3BFE0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.DataSourceHandlers.Viber", "Consensus.DataSourceHandlers.Viber\Consensus.DataSourceHandlers.Viber.csproj", "{A5D11427-06ED-42BD-9BA8-C0825C3589D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +63,14 @@ Global
 		{872C3FDF-0352-47B1-A1A4-2C97D36C0B65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{872C3FDF-0352-47B1-A1A4-2C97D36C0B65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{872C3FDF-0352-47B1-A1A4-2C97D36C0B65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEA86433-5C50-43E5-91D5-8AA86E3BFE0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA86433-5C50-43E5-91D5-8AA86E3BFE0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA86433-5C50-43E5-91D5-8AA86E3BFE0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA86433-5C50-43E5-91D5-8AA86E3BFE0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5D11427-06ED-42BD-9BA8-C0825C3589D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5D11427-06ED-42BD-9BA8-C0825C3589D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5D11427-06ED-42BD-9BA8-C0825C3589D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5D11427-06ED-42BD-9BA8-C0825C3589D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +78,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{86788026-0974-4536-A229-982207528B3F} = {309B3E65-DFD2-426D-8989-4C8380C7D7DB}
 		{89E25C2B-B20E-48DD-9385-5FB5CB2ABF79} = {309B3E65-DFD2-426D-8989-4C8380C7D7DB}
+		{A5D11427-06ED-42BD-9BA8-C0825C3589D4} = {309B3E65-DFD2-426D-8989-4C8380C7D7DB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1BBE9FC6-A2EB-4221-9462-AF25CE1E7F85}

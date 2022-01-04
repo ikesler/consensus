@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: consensus
       POSTGRES_PASSWORD: 1
     networks:
-      homelogrusdev_logrus:
+      home_logrus:
         ipv4_address: 10.5.0.23
     ports:
       - "5432:5432"
@@ -22,7 +22,7 @@ services:
     depends_on:
       - postgres
     networks:
-      homelogrusdev_logrus:
+      home_logrus:
         ipv4_address: 10.5.0.21
     env_file:
     - .env
@@ -33,9 +33,9 @@ services:
     image: ghcr.io/logrus-dev/consensus-front:${VERSION}
     container_name: front
     networks:
-      homelogrusdev_logrus:
+      home_logrus:
         ipv4_address: 10.5.0.22
 
 networks:
-  homelogrusdev_logrus:
+  home_logrus:
     external: true

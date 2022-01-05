@@ -2,6 +2,7 @@
 {
     public class ViberState
     {
-        public DateTime LastMessageDate { get; set; }
+        public DateTimeOffset? LastMessageDate { get; set; }
+        public DateTimeOffset? FirstMessageDate { get; set; }
     }
 }

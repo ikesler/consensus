@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Consensus.Bl.Impl;
+using Consensus.DataSourceHandlers.Viber;
 using Consensus.DataSourceHandlers.Vk;
 
 namespace Consensus.Bl
@@ -10,6 +11,7 @@ namespace Consensus.Bl
         {
             builder.RegisterType<DataSourceManager>().AsImplementedInterfaces();
             builder.RegisterType<VkDataSourceHandler>().AsImplementedInterfaces();
+            builder.RegisterType<ViberDataSourceHandler>().AsImplementedInterfaces();
         }
     }
 }

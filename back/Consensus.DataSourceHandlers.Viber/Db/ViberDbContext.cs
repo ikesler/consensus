@@ -17,10 +17,10 @@ namespace Consensus.DataSourceHandlers.Viber.Db
         {
         }
 
-        public virtual DbSet<ChatInfo> ChatInfos { get; set; }
-        public virtual DbSet<Contact> Contacts { get; set; }
-        public virtual DbSet<Event> Events { get; set; }
-        public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<ChatInfo> ChatInfos { get; set; } = null!;
+        public virtual DbSet<Contact> Contacts { get; set; } = null!;
+        public virtual DbSet<Event> Events { get; set; } = null!;
+        public virtual DbSet<Message> Messages { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -232,15 +232,12 @@ namespace Consensus.DataSourceHandlers.Viber.Db
                 entity.Property(e => e.Seq).HasColumnType("integer");
 
                 entity.Property(e => e.SortOrder)
-                    .IsRequired()
                     .HasColumnType("unsigned long")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.TimeStamp).HasColumnType("longint");
 
-                entity.Property(e => e.Token)
-                    .IsRequired()
-                    .HasColumnType("unsigned long");
+                entity.Property(e => e.Token).HasColumnType("unsigned long");
 
                 entity.Property(e => e.Type).HasColumnType("smallint");
 

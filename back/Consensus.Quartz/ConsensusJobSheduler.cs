@@ -20,7 +20,7 @@ namespace Consensus.Quartz
         public async Task StartAsync(CancellationToken hostedServiceToken)
         {
             Log.Information("Scheduling Quartz jobs");
-            foreach (var dataSource in _sysConfig.ConsensusDataSources)
+            foreach (var dataSource in _sysConfig.ConsensusDataSources.Where(kvp => kvp.Value.Schedule != null))
             {
                 var timeoutTokenSource = new CancellationTokenSource(dataSource.Value.Timeout);
                 var cancellationToken = CancellationTokenSource

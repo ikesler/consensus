@@ -1,0 +1,11 @@
+﻿{
+  "profiles": {
+    "Consensus": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

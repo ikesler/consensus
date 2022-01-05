@@ -44,7 +44,13 @@ namespace Consensus.Bl.Impl
 
             var callbackUrl = new Uri($"{_sysConfig.BackEndUrl}/callback/{pipe.PublicId}");
 
-            return await handler.InitCallback(config, props, callbackUrl);
+            var redirectUri = await handler.InitCallback(config, props, callbackUrl);
+            if (redirectUri == null)
+            {
+                await HandleCallback(pipe.PublicId, null);
+            }
+
+            return redirectUri;
         }
 
         public async Task HandleCallback(Guid pipeId, Uri callbackUrl)
@@ -72,6 +78,35 @@ namespace Consensus.Bl.Impl
             Log.Information("Opened pipe: {state}", pipe.StateJson);
 
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task PumpDocumentsFromAgent(Guid pipeId, string newStateJson, ConsensusDocument[] documents)
+        {
+            Log.Information("Accepting documents from agent");
+
+            var pipe = await _dbContext.Pipes.FirstOrDefaultAsync(p => p.PublicId == pipeId);
+            if (pipe == null)
+            {
+                throw new ConsensusException($"Pipe not found: {pipeId}");
+            }
+
+            foreach (var document in documents)
+            {
+                document.CreatedAt = DateTime.UtcNow;
+            }
+
+            try
+            {
+                pipe.StateJson = newStateJson;
+                await SaveToElastic(documents);
+                Log.Information("Successfully pumped {cnt} documents", documents.Length);
+            }
+            finally
+            {
+                pipe.Status = PipeStatus.Open;
+                pipe.LastPumpedAt = DateTime.UtcNow;
+                await _dbContext.SaveChangesAsync();
+            }
         }
 
         public async Task PumpDocuments(string dataSourceCode)
@@ -152,9 +187,16 @@ namespace Consensus.Bl.Impl
             foreach (var group in groupsByIndex)
             {
                 var r = await client.BulkAsync(b => b
-                    .Index($"consensus_{group.Key}_{DateTime.Now.Date:yyyy.MM}".ToLower())
+                    .Index($"{_sysConfig.ElasticIndexPrefix}_{group.Key}_{DateTime.Now.Date:yyyy.MM}".ToLower())
                     .IndexMany(group));
             }
+        }
+
+        public async Task<IEnumerable<Pipe>> GetPipes(string[] dataSourceCodes)
+        {
+            return await _dbContext.Pipes
+                .Where(p => dataSourceCodes.Contains(p.DataSourceCode))
+                .ToArrayAsync();
         }
     }
 }

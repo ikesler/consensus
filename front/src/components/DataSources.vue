@@ -2,7 +2,7 @@
 <b-container class="bv-example-row">
   <b-row>
     <b-col>
-      <b-card bg-variant="dark" text-variant="white" title="VK Wall Posts and comments">
+      <b-card bg-variant="dark" text-variant="white" title="VK Wall Posts and Comments">
         <b-card-text>
           <b-row class="my-1">
             <b-col sm="3">
@@ -24,7 +24,29 @@
         <b-button v-on:click="initVk" href="#" variant="primary">Crawl VK community</b-button>
       </b-card>
     </b-col>
-    <b-col></b-col>
+    <b-col>
+      <b-card bg-variant="dark" text-variant="white" title="Viber Chat">
+        <b-card-text>
+          <b-row class="my-1">
+            <b-col sm="3">
+              <label for="name">Chat name:</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input id="name" v-model="name" placeholder=""></b-form-input>
+            </b-col>
+          </b-row>
+          <b-row class="my-1">
+            <b-col sm="3">
+              <label for="name">Phone number:</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input id="phone" v-model="phone" placeholder=""></b-form-input>
+            </b-col>
+          </b-row>
+        </b-card-text>
+        <b-button v-on:click="initViber" href="#" variant="primary">Connect Viber chat</b-button>
+      </b-card>
+    </b-col>
   </b-row>
 </b-container>
 
@@ -44,8 +66,18 @@ export default class DataSources extends Vue {
     window.open(`${process.env.VUE_APP_API_URL}/callback/${source}/redirect?props=${props}`, '_blank');
   }
 
+  initViber (): void {
+    const source = 'Viber';
+    const props = encodeURIComponent(JSON.stringify({
+      ChatName: this.name,
+      PhoneNumber: this.phone
+    }));
+    window.open(`${process.env.VUE_APP_API_URL}/callback/${source}/redirect?props=${props}`, '_blank');
+  }
+
   name = ''
   pumpHistoryDays = 1
+  phone = ''
 }
 </script>
 

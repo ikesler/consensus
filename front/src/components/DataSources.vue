@@ -14,10 +14,10 @@
           </b-row>
           <b-row class="my-1">
             <b-col sm="3">
-              <label for="pumpHistoryMonths">Months of history:</label>
+              <label for="pumpHistoryDays">Days of history:</label>
             </b-col>
             <b-col sm="9">
-              <b-form-input id="pumpHistoryMonths" v-model="pumpHistoryMonths" type="number"></b-form-input>
+              <b-form-input id="pumpHistoryDays" v-model="pumpHistoryDays" type="number"></b-form-input>
             </b-col>
           </b-row>
         </b-card-text>
@@ -39,13 +39,13 @@ export default class DataSources extends Vue {
     const source = 'Vk';
     const props = encodeURIComponent(JSON.stringify({
       CommunityName: this.name,
-      PumpHistoryMonths: this.pumpHistoryMonths
+      PumpHistoryDays: this.pumpHistoryDays
     }));
     window.open(`${process.env.VUE_APP_API_URL}/callback/${source}/redirect?props=${props}`, '_blank');
   }
 
   name = ''
-  pumpHistoryMonths = 1
+  pumpHistoryDays = 1
 }
 </script>
 

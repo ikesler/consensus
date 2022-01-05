@@ -76,7 +76,7 @@ namespace Consensus.Bl.Impl
 
         public async Task PumpDocuments(string dataSourceCode)
         {
-            Log.Information("Pumping data from source: {dataSourceCode}", dataSourceCode);
+            Log.Information("Looking for pipes from source: {dataSourceCode}", dataSourceCode);
 
             var handler = GetHandler(dataSourceCode);
             var config = GetHandlerConfig(handler);

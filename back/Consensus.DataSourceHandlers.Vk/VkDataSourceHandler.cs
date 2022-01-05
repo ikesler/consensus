@@ -129,9 +129,9 @@ namespace Consensus.DataSourceHandlers.Vk
             }
 
             // Need to pump only last X months of history
-            if (props.PumpHistoryMonths > 0)
+            if (props.PumpHistoryDays > 0)
             {
-                var minDate = DateTime.UtcNow.AddMonths(-props.PumpHistoryMonths);
+                var minDate = DateTime.UtcNow.AddDays(-props.PumpHistoryDays);
                 if (documents.Any(d => d.ExternalCreatedAt <= minDate))
                 {
                     state.IsHistoryDone = true;

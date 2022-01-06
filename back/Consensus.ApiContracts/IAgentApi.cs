@@ -9,8 +9,5 @@ namespace Consensus.ApiContracts
 
         [Post("/agent/documents")]
         Task PostDocuments(AgentDocuments agentDocuments, CancellationToken cancellationToken);
-
-        [Post("/agent/logs")]
-        Task PostLogs(AgentLog agentLog, CancellationToken cancellationToken);
     }
 }

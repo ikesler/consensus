@@ -45,6 +45,7 @@ namespace Consensus
 
             services.AddControllers().AddJsonOptions(options =>
             {
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             });
             services.AddDbContext<ConsensusDbContext>(o => o.UseNpgsql(Configuration.GetConnectionString("ConsensusDb")));

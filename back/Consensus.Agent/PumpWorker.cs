@@ -1,7 +1,7 @@
 ﻿using Consensus.ApiContracts;
 using Consensus.DataSourceHandlers.Api;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Serilog;
 using System.Text.Json;
 
 namespace Consensus.Agent
@@ -10,13 +10,13 @@ namespace Consensus.Agent
     {
         private readonly IEnumerable<IDataSourceHandler> _dataSourceHandlers;
         private readonly IAgentApi _api;
-        private readonly ILogger<PumpWorker> _logger;
+        private readonly PureManClickOnce _deployment;
 
-        public PumpWorker(IEnumerable<IDataSourceHandler> dataSourceHandlers, IAgentApi api, ILogger<PumpWorker> logger)
+        public PumpWorker(IEnumerable<IDataSourceHandler> dataSourceHandlers, IAgentApi api, PureManClickOnce deployment)
         {
             _dataSourceHandlers = dataSourceHandlers;
             _api = api;
-            _logger = logger;
+            _deployment = deployment;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,12 +25,16 @@ namespace Consensus.Agent
             {
                 try
                 {
-                    await _api.PostLogs(new AgentLog
+                   //  Log.Debug("Agent is awake");
+
+                    try
                     {
-                        Level = ApiContracts.LogLevel.Debug,
-                        Message = "Agent is awake at machine {Machine}",
-                        Params = new object[] { Environment.MachineName },
-                    }, stoppingToken);
+                        await _deployment.Update();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "An error occurred while updating");
+                    }
 
                     var supportedDataSources = _dataSourceHandlers.Select(x => x.Code).ToArray();
                     var pipes = await _api.GetPipes(supportedDataSources, stoppingToken);
@@ -39,22 +43,13 @@ namespace Consensus.Agent
                     {
                         try
                         {
-                            await _api.PostLogs(new AgentLog
-                            {
-                                Level = ApiContracts.LogLevel.Debug,
-                                Message = "Agent at machine {Machine} is pumping data to {Source}/{Pipe} pipe",
-                                Params = new object[] { Environment.MachineName, pipe.DataSourceCode, pipe.PublicId },
-                            }, stoppingToken);
+                            throw new Exception("LOL :))))", new Exception("inner lol"));
+                            Log.Debug("Agent is pumping data to {Source}/{Pipe} pipe", pipe.DataSourceCode, pipe.PublicId);
 
                             var handler = _dataSourceHandlers.Single(x => x.Code == pipe.DataSourceCode);
                             var (documents, newState) = await handler.PumpDocuments(null, pipe.PropsJson, pipe.StateJson);
 
-                            await _api.PostLogs(new AgentLog
-                            {
-                                Level = ApiContracts.LogLevel.Debug,
-                                Message = $"Agent at machine {{Machine}} sending {documents.Length} documents to the server",
-                                Params = new object[] { Environment.MachineName },
-                            }, stoppingToken);
+                            Log.Debug($"Agent sending {documents.Length} documents to the server");
 
                             await _api.PostDocuments(new AgentDocuments
                             {
@@ -63,33 +58,17 @@ namespace Consensus.Agent
                                 Documents = documents,
                             }, stoppingToken);
 
-                            await _api.PostLogs(new AgentLog
-                            {
-                                Level = ApiContracts.LogLevel.Debug,
-                                Message = $"Agent at machine {{Machine}} has successfully sent {documents.Length} documents to the server",
-                                Params = new object[] { Environment.MachineName },
-                            }, stoppingToken);
+                            Log.Debug($"Agent has successfully sent {documents.Length} documents to the server");
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError(ex, ex.Message);
-                            await _api.PostLogs(new AgentLog
-                            {
-                                Level = ApiContracts.LogLevel.Error,
-                                Message = $"An error occurred in an agent when processing pipe {{pipe}}: {ex}",
-                                Params = new object [] { pipe.PublicId },
-                            }, stoppingToken);
+                            Log.Error(ex, "An error occurred in an agent when processing pipe {Pipe}", pipe.PublicId);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, ex.Message);
-                    await _api.PostLogs(new AgentLog
-                    {
-                        Level = ApiContracts.LogLevel.Error,
-                        Message = $"An error occurred in an agent: {ex}",
-                    }, stoppingToken);
+                    Log.Error(ex, "An error occurred in an agent");
                 }
 
                 await Task.Delay(60 * 1000, stoppingToken);

@@ -67,6 +67,9 @@ namespace Consensus.DataSourceHandlers.Viber
 
             if (messages.Any())
             {
+                // Viber local DB does not hold complete chat history - only recent messages
+                // Viber may add/remove that messages depending on the user behavior - the scroll state
+                // This is the reason of these timestamp manipulations - we can expect new messages from the both sides of the timeline
                 if (state.FirstMessageDate == null)
                 {
                     state.FirstMessageDate = DateTimeOffset.FromUnixTimeMilliseconds(messages.Select(x => x.Event.TimeStamp).Min());

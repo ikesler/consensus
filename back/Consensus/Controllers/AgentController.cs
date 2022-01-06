@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Consensus.ApiContracts;
 using Consensus.Bl.Api;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -36,7 +35,7 @@ namespace Consensus.Controllers
         [HttpPost("agent/logs")]
         public async Task<IActionResult> PostLogs([FromBody] AgentLog log)
         {
-            Log.Write((Serilog.Events.LogEventLevel)log.Level, log.Message, log.Params);
+            Log.Write((Serilog.Events.LogEventLevel)log.Level, log.Message, log.Params.ToArray());
 
             return Ok("Ok");
         }

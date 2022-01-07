@@ -25,7 +25,7 @@ namespace Consensus.Agent
             {
                 try
                 {
-                   //  Log.Debug("Agent is awake");
+                   Log.Debug("Agent is awake");
 
                     try
                     {
@@ -43,22 +43,23 @@ namespace Consensus.Agent
                     {
                         try
                         {
-                            throw new Exception("LOL :))))", new Exception("inner lol"));
                             Log.Debug("Agent is pumping data to {Source}/{Pipe} pipe", pipe.DataSourceCode, pipe.PublicId);
 
                             var handler = _dataSourceHandlers.Single(x => x.Code == pipe.DataSourceCode);
                             var (documents, newState) = await handler.PumpDocuments(null, pipe.PropsJson, pipe.StateJson);
 
-                            Log.Debug($"Agent sending {documents.Length} documents to the server");
-
-                            await _api.PostDocuments(new AgentDocuments
+                            Log.Debug("Agent pumped {NumOfDocs} documents", documents.Length);
+                            if (documents.Any())
                             {
-                                PipeId = pipe.PublicId,
-                                StateJson = JsonSerializer.Serialize(newState),
-                                Documents = documents,
-                            }, stoppingToken);
+                                await _api.PostDocuments(new AgentDocuments
+                                {
+                                    PipeId = pipe.PublicId,
+                                    StateJson = JsonSerializer.Serialize(newState),
+                                    Documents = documents,
+                                }, stoppingToken);
 
-                            Log.Debug($"Agent has successfully sent {documents.Length} documents to the server");
+                                Log.Debug("Documents have been sent to the API");
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -71,7 +72,8 @@ namespace Consensus.Agent
                     Log.Error(ex, "An error occurred in an agent");
                 }
 
-                await Task.Delay(60 * 1000, stoppingToken);
+                // TODO: add Quartz and take schedules from the API
+                await Task.Delay(60_000, stoppingToken);
             }
         }
     }

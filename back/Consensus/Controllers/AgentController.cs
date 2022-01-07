@@ -39,7 +39,10 @@ namespace Consensus.Controllers
         {
             foreach (var @event in events.Events)
             {
-                Log.Logger.ForContext(@event.Properties).Write(@event.Level, @event.MessageTemplate);
+                var messageTemplate = string.IsNullOrWhiteSpace(@event.Exception)
+                    ? @event.MessageTemplate
+                    : @event.MessageTemplate + "\n" + @event.Exception;
+                Log.Logger.ForContext(@event.Properties).Write(@event.Level, messageTemplate);
             }
 
             return Ok("Ok");

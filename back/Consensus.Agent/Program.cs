@@ -8,8 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Win32;
 using Refit;
 using Serilog;
-
-Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine(msg));
+using Serilog.Events;
+using System.Diagnostics;
 
 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 var builder = new ConfigurationBuilder()
@@ -19,12 +19,27 @@ var builder = new ConfigurationBuilder()
 
 var config = builder.Build();
 
+// Apparently, EventLog sink configuration from json file does not work properly
+// But the coded one does. And we absolutely need Even log for a Windows app.
+// https://github.com/serilog/serilog-sinks-eventlog/issues/36
+Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .WriteTo.Debug()
+    .WriteTo.EventLog("Application")
+    .WriteTo.Http($"{config.GetValue<string>("ApiUrl")}/agent/logs")
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "ConsensusAgent")
+    .CreateLogger();
+
+Log.Information("Starting application");
+
 // Restrict app to single instance
 using (var mutex = new Mutex(false, config.GetValue<string>("AppId")))
 {
     if (!mutex.WaitOne(0, false))
     {
-        Console.WriteLine("Another instance is running.");
         return;
     }
 
@@ -34,10 +49,7 @@ using (var mutex = new Mutex(false, config.GetValue<string>("AppId")))
         key.SetValue("Consensus.Agent", "\"" + System.Reflection.Assembly.GetExecutingAssembly().Location + "\"");
     }
 
-    Console.WriteLine("Application Starting.");
-
     await Host.CreateDefaultBuilder(args)
-        .UseSerilog((context, services, configuration) => configuration.ReadFrom.Configuration(config))
         .ConfigureServices((hostContext, services) =>
         {
             services.AddSingleton<IAgentApi>(x => RestService.For<IAgentApi>(config.GetValue<string>("ApiUrl")));

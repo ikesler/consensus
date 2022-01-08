@@ -9,5 +9,11 @@ namespace Consensus.ApiContracts
 
         [Post("/agent/documents")]
         Task PostDocuments(AgentDocuments agentDocuments, CancellationToken cancellationToken);
+
+        [Get("/agent/exe")]
+        Task<Stream> DownloadExe();
+
+        [Get("/agent/version")]
+        Task<VersionModel> GetVersion();
     }
 }

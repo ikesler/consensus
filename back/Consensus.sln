@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.Agent", "Consensu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.DataSourceHandlers.Viber", "Consensus.DataSourceHandlers.Viber\Consensus.DataSourceHandlers.Viber.csproj", "{A5D11427-06ED-42BD-9BA8-C0825C3589D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consensus.ApiContracts", "Consensus.ApiContracts\Consensus.ApiContracts.csproj", "{F73D22B0-2689-4309-9504-CC72C3AB90C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consensus.ApiContracts", "Consensus.ApiContracts\Consensus.ApiContracts.csproj", "{F73D22B0-2689-4309-9504-CC72C3AB90C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,19 +5,19 @@ using Consensus.DataSourceHandlers.Viber;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Win32;
 using Refit;
 using Serilog;
 using Serilog.Events;
 using System.Diagnostics;
+using System.Reflection;
 
+var configStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Consensus.Agent.appsettings.json");
 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-var builder = new ConfigurationBuilder()
-    .AddJsonFile($"appsettings.json", true, true)
-    .AddJsonFile($"appsettings.{env}.json", true, true)
-    .AddEnvironmentVariables();
-
-var config = builder.Build();
+var config = new ConfigurationBuilder()
+    .AddJsonStream(configStream)
+    .AddJsonFile($"appsettings.{env}.json", true)
+    .AddEnvironmentVariables()
+    .Build();
 
 // Apparently, EventLog sink configuration from json file does not work properly
 // But the coded one does. And we absolutely need Even log for a Windows app.
@@ -35,25 +35,36 @@ Log.Logger = new LoggerConfiguration()
 
 Log.Information("Starting application");
 
+var agentApi = RestService.For<IAgentApi>(config.GetValue<string>("ApiUrl"));
+var deployment = new Deployment(config, agentApi);
+
+if (!deployment.IsDeployed)
+{
+    Log.Information("Deploying application");
+    await deployment.DeployAndStart();
+    return;
+}
+
+if (await deployment.CompleteUpdate())
+{
+    return;
+}
+
 // Restrict app to single instance
 using (var mutex = new Mutex(false, config.GetValue<string>("AppId")))
 {
-    if (!mutex.WaitOne(0, false))
+    // non-zero timeout to wait untill deployment process has exited
+    if (!mutex.WaitOne(5000, false))
     {
         return;
     }
 
-    if (config.GetValue<bool>("StartOnBoot"))
-    {
-        using var key = Registry.CurrentUser.CreateSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-        key.SetValue("Consensus.Agent", "\"" + System.Reflection.Assembly.GetExecutingAssembly().Location + "\"");
-    }
-
+    Log.Information("Running worker");
     await Host.CreateDefaultBuilder(args)
         .ConfigureServices((hostContext, services) =>
         {
-            services.AddSingleton<IAgentApi>(x => RestService.For<IAgentApi>(config.GetValue<string>("ApiUrl")));
-            services.AddSingleton<PureManClickOnce>(x => new PureManClickOnce(config.GetValue<string>("PublishUrl")));
+            services.AddSingleton(deployment);
+            services.AddSingleton(agentApi);
             services.AddTransient<ViberDataSourceHandler>();
             services.AddTransient<IDataSourceHandler>(x => x.GetService<ViberDataSourceHandler>());
             services.AddHostedService<PumpWorker>();

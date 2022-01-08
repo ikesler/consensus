@@ -10,9 +10,9 @@ namespace Consensus.Agent
     {
         private readonly IEnumerable<IDataSourceHandler> _dataSourceHandlers;
         private readonly IAgentApi _api;
-        private readonly PureManClickOnce _deployment;
+        private readonly Deployment _deployment;
 
-        public PumpWorker(IEnumerable<IDataSourceHandler> dataSourceHandlers, IAgentApi api, PureManClickOnce deployment)
+        public PumpWorker(IEnumerable<IDataSourceHandler> dataSourceHandlers, IAgentApi api, Deployment deployment)
         {
             _dataSourceHandlers = dataSourceHandlers;
             _api = api;
@@ -25,11 +25,16 @@ namespace Consensus.Agent
             {
                 try
                 {
-                   Log.Debug("Agent is awake");
+                    Log.Debug("Agent is awake");
 
                     try
                     {
-                        await _deployment.Update();
+                        if (await _deployment.CheckForUpdates())
+                        {
+                            await _deployment.Update();
+                            Log.Debug("Agent has been updated and restarting");
+                            return;
+                        }
                     }
                     catch (Exception ex)
                     {

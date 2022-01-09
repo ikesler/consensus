@@ -13,8 +13,9 @@ Only vk.com for now.
 ## How to run it locally?
 - Back end: go to `back` directory, open Visual Studio solution and run it as usual. In order to populate data source secrets and other configs: rename `dev_secrets.example.json` to `dev_secrets.json` and populate all the values. Then run `dotnet user-secrets clear` and `type .\dev_secrets.json | dotnet user-secrets set`.
 - Front end: go to `front` directory, then `npm i`, then `npm run serve`. Depending on the port allocated for the back end, you might need to adjust `.env.development` accordingly.
+- Agent (for Viber): rename `appsettings.json.example` to `appsettings.json` and run as a regular console app for debug. For release - it is built alongside with Back end in Docker and the link to the installer is available in the web app.
 
 ## How to deploy?
 
-Rename `.env.example` to `.env` and populate all the variable. Then run `deploy.sh`
+Rename `.env.example` to `.env` and populate all the variable. Then run `deploy.sh`. It is supposed that Docker installed on the target server, current user has certificate access to SSH and next container exists on the target server: `docker container create --name socat --restart=always -p 9022:9022 -v /var/run/docker.sock:/var/run/docker.sock alpine/socat tcp-listen:9022,fork,reuseaddr unix-connect:/var/run/docker.sock`. Socat forwards a TCP port to Docker daemon's socket. It is not secure so network configuration should be trust-worthy. k8s is in plans, pure Docker was chosen because of simplicity and less resources overhead.
 

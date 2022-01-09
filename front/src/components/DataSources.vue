@@ -2,7 +2,7 @@
 <b-container class="bv-example-row">
   <b-row>
     <b-col>
-      <b-card bg-variant="dark" text-variant="white" title="VK Wall Posts and comments">
+      <b-card bg-variant="dark" text-variant="white" title="VK Wall Posts and Comments">
         <b-card-text>
           <b-row class="my-1">
             <b-col sm="3">
@@ -14,17 +14,47 @@
           </b-row>
           <b-row class="my-1">
             <b-col sm="3">
-              <label for="pumpHistoryMonths">Months of history:</label>
+              <label for="pumpHistoryDays">Days of history:</label>
             </b-col>
             <b-col sm="9">
-              <b-form-input id="pumpHistoryMonths" v-model="pumpHistoryMonths" type="number"></b-form-input>
+              <b-form-input id="pumpHistoryDays" v-model="pumpHistoryDays" type="number"></b-form-input>
             </b-col>
           </b-row>
         </b-card-text>
         <b-button v-on:click="initVk" href="#" variant="primary">Crawl VK community</b-button>
       </b-card>
     </b-col>
-    <b-col></b-col>
+    <b-col>
+      <b-card bg-variant="dark" text-variant="white" title="Viber Chat">
+        <b-card-text>
+           <b-row class="my-1">
+            <b-col sm="3">
+              Download Agent
+            </b-col>
+            <b-col sm="9">
+              <a v-bind:href="agentExeUrl" target="_blank">Download</a>
+            </b-col>
+          </b-row>
+          <b-row class="my-1">
+            <b-col sm="3">
+              <label for="name">Chat name:</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input id="name" v-model="name" placeholder=""></b-form-input>
+            </b-col>
+          </b-row>
+          <b-row class="my-1">
+            <b-col sm="3">
+              <label for="name">Phone number in international format:</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input id="phone" v-model="phone" placeholder="e.g., 7(999) 123 33 44"></b-form-input>
+            </b-col>
+          </b-row>
+        </b-card-text>
+        <b-button v-on:click="initViber" href="#" variant="primary">Connect Viber chat</b-button>
+      </b-card>
+    </b-col>
   </b-row>
 </b-container>
 
@@ -39,13 +69,24 @@ export default class DataSources extends Vue {
     const source = 'Vk';
     const props = encodeURIComponent(JSON.stringify({
       CommunityName: this.name,
-      PumpHistoryMonths: this.pumpHistoryMonths
+      PumpHistoryDays: this.pumpHistoryDays
+    }));
+    window.open(`${process.env.VUE_APP_API_URL}/callback/${source}/redirect?props=${props}`, '_blank');
+  }
+
+  initViber (): void {
+    const source = 'Viber';
+    const props = encodeURIComponent(JSON.stringify({
+      ChatName: this.name,
+      PhoneNumber: this.phone
     }));
     window.open(`${process.env.VUE_APP_API_URL}/callback/${source}/redirect?props=${props}`, '_blank');
   }
 
   name = ''
-  pumpHistoryMonths = 1
+  pumpHistoryDays = 1
+  phone = ''
+  agentExeUrl = `${process.env.VUE_APP_API_URL}/agent/download/Consensus.Agent.exe`
 }
 </script>
 

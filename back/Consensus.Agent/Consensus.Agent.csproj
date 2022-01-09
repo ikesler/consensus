@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PlatformTarget>anycpu</PlatformTarget>
+    <TrimMode>Link</TrimMode>
+    <Version>1.2.3</Version>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.Development.json" />
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+    <PackageReference Include="Refit" Version="6.1.15" />
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="4.2.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+    <PackageReference Include="Serilog.Sinks.EventLog" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.Http" Version="7.2.0" />
+    <PackageReference Include="Syroot.Windows.IO.KnownFolders" Version="1.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Consensus.ApiContracts\Consensus.ApiContracts.csproj" />
+    <ProjectReference Include="..\Consensus.DataSourceHandlers.Viber\Consensus.DataSourceHandlers.Viber.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\launchSettings.json">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

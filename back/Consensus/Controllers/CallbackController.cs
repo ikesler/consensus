@@ -18,6 +18,11 @@ namespace Consensus.Controllers
         {
             var redirectUrl = await _dataSourceManager.InitCallback(sourceCode, propsParam);
 
+            if (redirectUrl == null)
+            {
+                return Ok("Ok");
+            }
+
             return Redirect(redirectUrl.ToString());
         }
 

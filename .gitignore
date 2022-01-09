@@ -1,2 +1,4 @@
 /.env
 .vs
+/back/Consensus.Agent/appsettings.json
+/front/public/agent

@@ -7,6 +7,8 @@ using Consensus.Quartz;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Consensus
 {
@@ -41,11 +43,16 @@ namespace Consensus
                 options.AllowedHosts.Add(backEndUrl.Host);
             });
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            });
             services.AddDbContext<ConsensusDbContext>(o => o.UseNpgsql(Configuration.GetConnectionString("ConsensusDb")));
 
             services.AddHostedService<ConsensusDbMigrator>();
             services.AddHostedService<ConsensusJobSheduler>();
+            services.AddAutoMapper(typeof(Startup));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

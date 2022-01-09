@@ -17,13 +17,17 @@ echo 'Building'
 
 docker-compose build
 docker-compose push
-git tag -a "v$NEW_VERSION" -m "Deployment"
+git tag -a "home-v$NEW_VERSION" -m "Deployment"
 
 echo "Deploying to $DEPLOY_TO"
 
-export DOCKER_HOST="$DEPLOY_TO"
+ssh root@$DEPLOY_TO 'docker container start socat'
+
+export DOCKER_HOST="tcp://$DEPLOY_TO:9022"
 
 docker-compose pull
 docker-compose up --no-build -d
 
-echo "Deplyed $NEW_VERSION."
+ssh root@$DEPLOY_TO 'docker container stop socat'
+
+echo "Deployed $NEW_VERSION."

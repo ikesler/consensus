@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Consensus.DataSourceHandlers.Api
 {
@@ -34,6 +35,11 @@ namespace Consensus.DataSourceHandlers.Api
             {
                 return jobject.ToObject<T>();
             }
+            if (obj is string str)
+            {
+                return JsonConvert.DeserializeObject<T>(str);
+            }
+
             return (T)obj;
         }
     }

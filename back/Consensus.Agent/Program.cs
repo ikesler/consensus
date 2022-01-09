@@ -11,6 +11,7 @@ using Serilog.Events;
 using System.Diagnostics;
 using System.Reflection;
 
+// Config file is put to resouces in order to have single-file deployment wihout developing a separate installer
 var configStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Consensus.Agent.appsettings.json");
 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 var config = new ConfigurationBuilder()

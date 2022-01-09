@@ -20,7 +20,7 @@ var config = new ConfigurationBuilder()
     .Build();
 
 // Apparently, EventLog sink configuration from json file does not work properly
-// But the coded one does. And we absolutely need Even log for a Windows app.
+// But the coded one does. And we absolutely need Event log for a Windows app.
 // https://github.com/serilog/serilog-sinks-eventlog/issues/36
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 Log.Logger = new LoggerConfiguration()
@@ -33,10 +33,15 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.WithProperty("Application", "ConsensusAgent")
     .CreateLogger();
 
-Log.Information("Starting application");
+Log.Information("Starting application v{Version}", Deployment.CurrentVersion);
 
 var agentApi = RestService.For<IAgentApi>(config.GetValue<string>("ApiUrl"));
 var deployment = new Deployment(config, agentApi);
+
+if (!deployment.EnsureProperlyStarted(args))
+{
+    return;
+}
 
 if (!deployment.IsDeployed)
 {
@@ -52,8 +57,8 @@ if (await deployment.CompleteUpdate())
 // Restrict app to single instance
 using (var mutex = new Mutex(false, config.GetValue<string>("AppId")))
 {
-    // non-zero timeout to wait untill deployment process has exited
-    if (!mutex.WaitOne(5000, false))
+    // non-zero timeout to wait untill deployment/update process has exited
+    if (!mutex.WaitOne(30_000, false))
     {
         return;
     }

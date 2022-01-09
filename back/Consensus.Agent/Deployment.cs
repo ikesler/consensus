@@ -12,6 +12,11 @@ namespace Consensus.Agent
         private const string AppName = "Consensus.Agent";
         private const string ExeName = $"{AppName}.exe";
 
+        /// <summary>
+        /// CLI param which indicates that the app restarted itself in "background" mode - with invisible window.
+        /// </summary>
+        private const string BackgroundArg = "background";
+
         private static string AppDataLocalPath => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         private static string DeployDir => Path.Combine(AppDataLocalPath, AppName);
         private static string UpdateDir => Path.Combine(DeployDir, "Update");
@@ -19,7 +24,7 @@ namespace Consensus.Agent
         private static string MainExePath => Path.Combine(DeployDir, ExeName);
         private static string UpdateExePath => Path.Combine(UpdateDir, ExeName);
         private static string CurrentExePath => Path.Combine(AppContext.BaseDirectory, ExeName);
-        private Version CurrentVersion => GetType().Assembly.GetName().Version;
+        public static Version CurrentVersion => typeof(Deployment).Assembly.GetName().Version;
 
         public bool IsDeployed => !_deploymentEnabled || CurrentExePath == MainExePath || CurrentExePath == UpdateExePath;
 
@@ -34,6 +39,27 @@ namespace Consensus.Agent
             _deploymentEnabled = config.GetValue<bool>("DeploymentEnabled");
             _updateEnabled = config.GetValue<bool>("UpdateEnabled");
             _agentApi = agentApi;
+        }
+
+        /// <summary>
+        /// Returns true if application is already running in background mode and does not need restart.
+        /// Current process should keep running.
+        /// Returns false if application was not started in the background and has just been restarted properly.
+        /// Current process should exit.
+        /// Applies only to deployed instance of the app (binary in deployment location). Otherwise method returns true.
+        /// </summary>
+        public bool EnsureProperlyStarted(string[] args)
+        {
+            if (CurrentExePath == MainExePath)
+            {
+                if (args.FirstOrDefault() != BackgroundArg)
+                {
+                    StartExe(MainExePath);
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public async Task DeployAndStart()
@@ -118,6 +144,7 @@ namespace Consensus.Agent
                 UseShellExecute = true,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = BackgroundArg,
             };
             Process.Start(startInfo);
         }

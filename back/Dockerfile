@@ -1,5 +1,6 @@
 ﻿# Build API
 FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-back
+ARG VERSION
 WORKDIR /src
 COPY Consensus.sln ./
 COPY ./Consensus/Consensus.csproj Consensus/Consensus.csproj
@@ -16,7 +17,7 @@ RUN dotnet restore Consensus/Consensus.csproj
 
 COPY . .
 WORKDIR Consensus
-RUN dotnet publish --no-restore -c Release -o /app
+RUN dotnet publish --no-restore -c Release -o /app -p:AssemblyVersion=$VERSION -p:Version=$VERSION
 RUN cp -p $(find . -name '*.pdb') /app
 
 # Build Agent
@@ -33,7 +34,7 @@ COPY ./Consensus.DataSourceHandlers.Viber/Consensus.DataSourceHandlers.Viber.csp
 RUN dotnet restore Consensus.Agent/Consensus.Agent.csproj
 COPY . .
 WORKDIR Consensus.Agent
-RUN dotnet publish -c Release -o /agent -p:AssemblyVersion=$VERSION.0 -p:Version=$VERSION.0
+RUN dotnet publish -c Release -o /agent -p:AssemblyVersion=$VERSION -p:Version=$VERSION -p:PublishSingleFile=true
 
 # The final image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine

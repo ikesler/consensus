@@ -10,7 +10,7 @@ namespace Consensus.ApiContracts
         [Post("/agent/documents")]
         Task PostDocuments(AgentDocuments agentDocuments, CancellationToken cancellationToken);
 
-        [Get("/agent/exe")]
+        [Get("/agent/download/Consensus.Agent.exe")]
         Task<Stream> DownloadExe();
 
         [Get("/agent/version")]

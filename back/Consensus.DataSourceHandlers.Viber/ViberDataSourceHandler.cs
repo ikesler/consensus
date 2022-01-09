@@ -27,7 +27,8 @@ namespace Consensus.DataSourceHandlers.Viber
             string? dbDir;
             if (!string.IsNullOrWhiteSpace(props.PhoneNumber))
             {
-                dbDir = Path.Combine(homeDir, props.PhoneNumber);
+                var phone = new string(props.PhoneNumber.Where(char.IsDigit).ToArray());
+                dbDir = Path.Combine(viberDir, props.PhoneNumber);
             }
             else
             {
@@ -38,6 +39,10 @@ namespace Consensus.DataSourceHandlers.Viber
                 }
             }
             var dbFilePath = Path.Combine(dbDir, DbFileName);
+            if (!File.Exists(dbFilePath))
+            {
+                throw new InvalidOperationException($"Viber DB file was not found: {dbFilePath}");
+            }
 
             var builder = new DbContextOptionsBuilder<ViberDbContext>();
             builder.UseSqlite($"Data Source={dbFilePath};Mode=ReadOnly");

@@ -5,13 +5,11 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PlatformTarget>anycpu</PlatformTarget>
-    <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>Link</TrimMode>
     <Version>1.2.3</Version>
-    <DisableWinExeOutputInference>true</DisableWinExeOutputInference> 
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>

@@ -40,7 +40,6 @@ var deployment = new Deployment(config, agentApi);
 
 if (!deployment.IsDeployed)
 {
-    Log.Information("Deploying application");
     await deployment.DeployAndStart();
     return;
 }

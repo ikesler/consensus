@@ -25,18 +25,22 @@ namespace Consensus.Agent
 
         private readonly bool _startOnBoot;
         private readonly bool _deploymentEnabled;
+        private readonly bool _updateEnabled;
         private readonly IAgentApi _agentApi;
 
         public Deployment(IConfiguration config, IAgentApi agentApi)
         {
             _startOnBoot = config.GetValue<bool>("StartOnBoot");
             _deploymentEnabled = config.GetValue<bool>("DeploymentEnabled");
+            _updateEnabled = config.GetValue<bool>("UpdateEnabled");
             _agentApi = agentApi;
         }
 
         public async Task DeployAndStart()
         {
             if (!_deploymentEnabled) return;
+
+            Log.Information("Deploying application version {Version}", CurrentVersion);
 
             Directory.CreateDirectory(DeployDir);
             TerminateMainExe();
@@ -53,7 +57,7 @@ namespace Consensus.Agent
 
         public async Task<bool> CheckForUpdates()
         {
-            if (!_deploymentEnabled) return false;
+            if (!_updateEnabled) return false;
 
             var versionFromApi = await _agentApi.GetVersion();
             var newVersion = Version.Parse(versionFromApi.Version);
@@ -67,15 +71,20 @@ namespace Consensus.Agent
         /// </summary>
         public async Task Update()
         {
-            if (!_deploymentEnabled) return;
+            if (!_updateEnabled) return;
+
+            Log.Debug("Agent is being updated");
 
             Directory.CreateDirectory(UpdateDir);
-            using var sourceStream = await _agentApi.DownloadExe();
-            using var destinationStream = File.Create(UpdateExePath);
-
-            await sourceStream.CopyToAsync(destinationStream);
+            using (var sourceStream = await _agentApi.DownloadExe())
+            using (var destinationStream = File.Create(UpdateExePath))
+            {
+                await sourceStream.CopyToAsync(destinationStream);
+            }
 
             StartExe(UpdateExePath);
+
+            Log.Debug("Agent has been updated and restarting");
         }
 
         /// <summary>
@@ -85,12 +94,16 @@ namespace Consensus.Agent
         /// </summary>
         public async Task<bool> CompleteUpdate()
         {
-            if (!_deploymentEnabled) return false;
+            if (!_updateEnabled) return false;
 
             if (CurrentExePath == UpdateExePath)
             {
+                Log.Debug("Agent is completing update");
+
                 await CopyExe(CurrentExePath, MainExePath);
                 StartExe(MainExePath);
+
+                Log.Debug("Agent has been completed update and restarting");
 
                 return true;
             }

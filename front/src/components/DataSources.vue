@@ -27,6 +27,14 @@
     <b-col>
       <b-card bg-variant="dark" text-variant="white" title="Viber Chat">
         <b-card-text>
+           <b-row class="my-1">
+            <b-col sm="3">
+              Download Agent
+            </b-col>
+            <b-col sm="9">
+              <a v-bind:href="agentExeUrl" target="_blank">Download</a>
+            </b-col>
+          </b-row>
           <b-row class="my-1">
             <b-col sm="3">
               <label for="name">Chat name:</label>
@@ -37,10 +45,10 @@
           </b-row>
           <b-row class="my-1">
             <b-col sm="3">
-              <label for="name">Phone number:</label>
+              <label for="name">Phone number in international format:</label>
             </b-col>
             <b-col sm="9">
-              <b-form-input id="phone" v-model="phone" placeholder=""></b-form-input>
+              <b-form-input id="phone" v-model="phone" placeholder="e.g., 7(999) 123 33 44"></b-form-input>
             </b-col>
           </b-row>
         </b-card-text>
@@ -78,6 +86,7 @@ export default class DataSources extends Vue {
   name = ''
   pumpHistoryDays = 1
   phone = ''
+  agentExeUrl = `${process.env.VUE_APP_API_URL}/agent/download/Consensus.Agent.exe`
 }
 </script>
 

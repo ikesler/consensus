@@ -11,12 +11,14 @@ namespace Consensus.Agent
         private readonly IEnumerable<IDataSourceHandler> _dataSourceHandlers;
         private readonly IAgentApi _api;
         private readonly Deployment _deployment;
+        private readonly IHostApplicationLifetime _applicationLifetime;
 
-        public PumpWorker(IEnumerable<IDataSourceHandler> dataSourceHandlers, IAgentApi api, Deployment deployment)
+        public PumpWorker(IEnumerable<IDataSourceHandler> dataSourceHandlers, IAgentApi api, Deployment deployment, IHostApplicationLifetime applicationLifetime)
         {
             _dataSourceHandlers = dataSourceHandlers;
             _api = api;
             _deployment = deployment;
+            _applicationLifetime = applicationLifetime;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,7 +34,7 @@ namespace Consensus.Agent
                         if (await _deployment.CheckForUpdates())
                         {
                             await _deployment.Update();
-                            Log.Debug("Agent has been updated and restarting");
+                            _applicationLifetime.StopApplication();
                             return;
                         }
                     }

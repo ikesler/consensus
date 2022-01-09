@@ -26,6 +26,23 @@ namespace Consensus.Controllers
             return Ok(_mapper.Map<ApiContracts.Pipe[]>(pipes));
         }
 
+
+        [HttpGet("agent/version")]
+        public async Task<IActionResult> GetVersion()
+        {
+            var assemblyVersion = typeof(Startup).Assembly.GetName().Version;
+
+            return Ok(new VersionModel { Version = assemblyVersion.ToString() });
+        }
+
+        [HttpGet("agent/download/{file}")]
+        public async Task<IActionResult> DownloadExe(string file)
+        {
+            var exePath = Path.Combine(AppContext.BaseDirectory, "agent", Path.GetFileName(file));
+
+            return PhysicalFile(exePath, "application/octet-stream", true);
+        }
+
         [HttpPost("agent/documents")]
         public async Task<IActionResult> PostDocuments([FromBody] AgentDocuments agentDocuments)
         {

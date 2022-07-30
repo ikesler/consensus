@@ -123,10 +123,13 @@ namespace Consensus.Bl.Impl
             var dataSourceConfig = GetDataSourceConfig(dataSourceCode);
 
             var timeoutDate = DateTime.UtcNow.Add(-dataSourceConfig.Timeout);
+            var pipeInterval = dataSourceConfig.PipeInterval ?? TimeSpan.Zero;
             var pipe = await _dbContext.Pipes
                 .Where(p => p.DataSourceCode == dataSourceCode)
                 // Either open and not pumping or pumping for too long
                 .Where(p => p.Status == PipeStatus.Open || (p.Status == PipeStatus.Pumping && p.LastPumpedAt < timeoutDate))
+                // Do not pump too often
+                .Where(p => !p.LastPumpedAt.HasValue || DateTime.UtcNow - p.LastPumpedAt > pipeInterval)
                 .OrderBy(p => p.LastPumpedAt ?? DateTime.MinValue)
                 .FirstOrDefaultAsync();
             if (pipe == null)

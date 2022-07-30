@@ -2,6 +2,7 @@
 using Consensus.Quartz.Jobs;
 using Microsoft.Extensions.Hosting;
 using Quartz;
+using Quartz.Impl.Matchers;
 using Serilog;
 
 namespace Consensus.Quartz
@@ -19,8 +20,16 @@ namespace Consensus.Quartz
 
         public async Task StartAsync(CancellationToken hostedServiceToken)
         {
+            Log.Information("Clearing existing jobs");
+
+            var allJobKeys = await _scheduler.GetJobKeys(GroupMatcher<JobKey>.AnyGroup(), hostedServiceToken);
+            foreach (var jobKey in allJobKeys)
+            {
+                await _scheduler.DeleteJob(jobKey, hostedServiceToken);
+            }
+
             Log.Information("Scheduling Quartz jobs");
-            foreach (var dataSource in _sysConfig.ConsensusDataSources.Where(kvp => kvp.Value.Schedule != null))
+            foreach (var dataSource in _sysConfig.ConsensusDataSources.Where(kvp => !string.IsNullOrWhiteSpace(kvp.Value.Schedule)))
             {
                 var timeoutTokenSource = new CancellationTokenSource(dataSource.Value.Timeout);
                 var cancellationToken = CancellationTokenSource
@@ -36,6 +45,7 @@ namespace Consensus.Quartz
                     .WithCronSchedule(dataSource.Value.Schedule)
                     .Build();
 
+                Log.Information("Scheduling {Source} to {Schedule}", dataSource.Key, dataSource.Value.Schedule);
                 await _scheduler.ScheduleJob(job, new[] { trigger }, true, cancellationToken);
             }
 

@@ -9,6 +9,7 @@ using Consensus.Common.Configuration;
 using Nest;
 using Serilog;
 using Consensus.Common.Exceptions;
+using Serilog.Context;
 
 namespace Consensus.Bl.Impl
 {
@@ -90,37 +91,45 @@ namespace Consensus.Bl.Impl
                 throw new ConsensusException($"Pipe not found: {pipeId}");
             }
 
-            foreach (var document in documents)
+            using (LogContext.PushProperty("Pipe", pipe.PublicId))
+            using (LogContext.PushProperty("Source", pipe.DataSourceCode))
             {
-                document.CreatedAt = DateTime.UtcNow;
-            }
+                foreach (var document in documents)
+                {
+                    document.CreatedAt = DateTime.UtcNow;
+                }
 
-            try
-            {
-                pipe.StateJson = newStateJson;
-                await SaveToElastic(documents);
-                Log.Information("Successfully pumped {cnt} documents", documents.Length);
-            }
-            finally
-            {
-                pipe.Status = PipeStatus.Open;
-                pipe.LastPumpedAt = DateTime.UtcNow;
-                await _dbContext.SaveChangesAsync();
+                try
+                {
+                    pipe.StateJson = newStateJson;
+                    await SaveToElastic(documents);
+                    Log.Information("Successfully pumped {cnt} documents", documents.Length);
+                }
+                finally
+                {
+                    pipe.Status = PipeStatus.Open;
+                    pipe.LastPumpedAt = DateTime.UtcNow;
+                    await _dbContext.SaveChangesAsync();
+                }
             }
         }
 
         public async Task PumpDocuments(string dataSourceCode)
         {
-            Log.Information("Looking for pipes from source: {dataSourceCode}", dataSourceCode);
+            Log.Information("Looking for pipes from source: {Source}", dataSourceCode);
 
             var handler = GetHandler(dataSourceCode);
             var config = GetHandlerConfig(handler);
             var dataSourceConfig = GetDataSourceConfig(dataSourceCode);
 
             var timeoutDate = DateTime.UtcNow.Add(-dataSourceConfig.Timeout);
+            var pipeInterval = dataSourceConfig.PipeInterval ?? TimeSpan.Zero;
             var pipe = await _dbContext.Pipes
+                .Where(p => p.DataSourceCode == dataSourceCode)
                 // Either open and not pumping or pumping for too long
                 .Where(p => p.Status == PipeStatus.Open || (p.Status == PipeStatus.Pumping && p.LastPumpedAt < timeoutDate))
+                // Do not pump too often
+                .Where(p => !p.LastPumpedAt.HasValue || DateTime.UtcNow - p.LastPumpedAt > pipeInterval)
                 .OrderBy(p => p.LastPumpedAt ?? DateTime.MinValue)
                 .FirstOrDefaultAsync();
             if (pipe == null)

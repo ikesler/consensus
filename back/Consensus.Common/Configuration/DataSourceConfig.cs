@@ -6,6 +6,7 @@ namespace Consensus.Common.Configuration
     {
         public string Schedule { get; set; }
         public TimeSpan Timeout { get; set; }
+        public TimeSpan? PipeInterval { get; set; }
         public IConfigurationSection Config { get; set; }
     }
 }

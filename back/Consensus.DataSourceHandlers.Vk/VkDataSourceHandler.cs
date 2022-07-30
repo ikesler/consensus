@@ -36,8 +36,17 @@ namespace Consensus.DataSourceHandlers.Vk
 
         public override async Task<(ConsensusDocument[], VkState)> PumpDocuments(VkConfig config, VkProps props, VkState state)
         {
-            var api = new VkApi();
-            api.Authorize(new ApiAuthParams
+            if (state.IsHistoryDone)
+            {
+                state.Offset = 0;
+            }
+
+            var api = new VkApi
+            {
+                // https://vk.com/dev/api_requests
+                RequestsPerSecond = 3
+            };
+            await api.AuthorizeAsync(new ApiAuthParams
             {
                 // TODO: there were some issues with using access_token - some weird API limits
                 // with service token everything works fine and this is actually enough - public groups provide enough data
@@ -47,7 +56,6 @@ namespace Consensus.DataSourceHandlers.Vk
             var messages = await api.Wall.GetAsync(new WallGetParams { Count = 100, Domain = props.CommunityName, Offset = state.Offset });
             if (messages.WallPosts.Count == 0)
             {
-                state.Offset = 0;
                 state.IsHistoryDone = true;
                 return (new ConsensusDocument[0], state);
             }
